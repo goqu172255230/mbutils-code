@@ -1,0 +1,97 @@
+
+  Introduction
+  ------------
+
+mbutils - is a set of utilities and an object oriented library to work with
+devices via communication protocol called Modbus. For more details on protocol
+itself see: http://www.modbus.org. All code written in the Object Pascal and
+compiled using FreePascal compiler (http://www.freepascal.org) with Lazarus
+IDE. Please note, that library itself do not contain any visual components.
+
+
+  Package contents
+  ----------------
+
+Package consists of two major parts and third party library:
+
+  1. mbulib - the library itself. It uses an object oriented paradigm and was
+designed to be easily extendible.
+
+  2. mbutils - the set of utilities which can be used in debugging, deployment
+and other activities related to Modbus devices.
+
+  3. synapse - is an excellent library which hides all the details when working with
+serial ports or TCP sockets. It is not strictly required to use the same version
+of synapse which is included with this package, but one have to verify that both
+are compatible.
+
+It is assumed, that users of this package have enough knowledge of Modbus protocol
+because later we'll rarely repeat official documentation.
+
+
+  Installation
+  ------------
+
+Unlike usual programs, this library does not need an installation step. Just
+unpack it somewhere (say under src/pas/mbutils name). Supplied utilities can be
+compiled using Lazarus IDE. When you we'll need to use mbulib in your code, it
+is recommended to copy original files into the project directory. This may
+sound a bit strange, but in practise works well because each project may have
+its own version of the library and in the case of API changes you'll not need to
+revise all the projects to get them compiled. But in general, you may work with
+the library as you wish.
+
+Advanced users may wish to use a direct checkout from the subversion repository.
+
+
+  Code example
+  ------------
+
+  Although mbulib was tailored to suit the needs of multi-threaded programs,
+here we'll demonstrate a blocked example:
+
+var
+  mbc : TMBRTUMaster;
+  q   : TMBQuery;
+begin
+  mbc := TMBRTUMaster.Create;
+  mbc.Baudrate := 9600;
+  q := TMBQReadHoldingRegisters.Create(1);
+  q.rq.StartReg := 200;
+  q.rq.RegCnt := 5;
+  mbc.Connect;
+  mbc.SubmitQuery(q);
+  q.WaitForCompletion;
+  writeln('Reg 200=', q.rp.RegU16BE[0]);
+  q.Free;
+  mbc.Free;
+end;
+
+The code are quite straight forward and only minor comments are needed. In the
+first two steps we create and setup the RTU master (client) and Modbus
+request/reply pair called 'query'.  Then with 'Connect' call master tries to
+occupy serial device and 'SubmitQuery' sends a prepared request. At this point
+program may continue with other tasks, but instead it merely waits when
+processing of request will be done. The 'GetCompletedQuery' call flushes
+receive queue of master and now we ready to display received data. Of course,
+this sample completely omits error checking, but the goal was to provide the
+main code path.
+
+It is highly recommended to look into the code of supplied utilities - they
+are simple enough to understand and may serve as good starting point.
+
+
+  Bug reporting
+  -------------
+
+All programs have bugs, this is inevitable. So, if you think that there is a
+bug, then drop me a note, preferably with working example, or even more
+preferable write a patch because mbulib are very transparent and it shouldn't
+be too hard to debug it.
+
+
+  Licensing
+  --------
+
+The library itself released under LGPL v2 license. All utilities released under
+GPL v2 license. If in doubt, look at first lines of particular source file.
