@@ -91,7 +91,7 @@ be too hard to debug it.
 
 
   Licensing
-  --------
+  ---------
 
 The library itself released under LGPL v2 license. All utilities released under
 GPL v2 license. If in doubt, look at first lines of particular source file.
