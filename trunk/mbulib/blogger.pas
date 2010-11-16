@@ -53,7 +53,6 @@ type
   private
     FFileName	: string;
     FHandle	: integer;
-    FMode	: word;
     FFilePos	: longint;
     FMaxSIze	: longint;
   public
@@ -148,7 +147,7 @@ end;
 
 procedure TBLogToConsole.Write(ALevel: TBLogLevel; const AMsg: string);
 begin
-  if ALevel >= FLevel then
+  if ALevel > FLevel then
     exit;
   writeln(stderr, AMsg);
 end;
@@ -186,7 +185,7 @@ const
 var
   nwr	: longint;
 begin
-  if ALevel >= FLevel then
+  if ALevel > FLevel then
     exit;
   if (FMaxSize <> 0) and (FFilePos > FMaxSize) then
     exit;	// TODO: rotate file?
