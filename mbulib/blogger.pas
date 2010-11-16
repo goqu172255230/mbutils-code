@@ -181,6 +181,8 @@ begin
 end;
 
 procedure TBLogToFile.Write(ALevel: TBLogLevel; const AMsg: string);
+const
+  crlf:string = #10;
 var
   nwr	: longint;
 begin
@@ -193,7 +195,7 @@ begin
     writeln(stderr, Format('%s: Unable to write file %s.', [ClassName, FFileName]));
     exit;
   end;
-  FileWrite(FHandle, #$a, 1);
+  FileWrite(FHandle, crlf, 1);
   inc(FFilePos, nwr + 1);
 end;
 
