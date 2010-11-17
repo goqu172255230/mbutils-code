@@ -143,6 +143,7 @@ begin
     FSDev.CloseSocket;
   end;
   FConnected := true;
+  result := true;
 end;
 
 procedure TMBSerialMaster.Disconnect;
