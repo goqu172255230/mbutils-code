@@ -33,6 +33,10 @@ uses
   SysUtils, Classes, syncobjs, bqueue, blogger;
 
 const
+  MBU_VERSION_HI = 1;
+  MBU_VERSION_LO = 2;
+  MBU_VERSION_ST = 'beta';
+
   MB_ADDRESS_BROADCAST = 0;	// Modbus broadcast address
   MB_ADDRESS_MIN = 1;		// Smallest possible slave address
   MB_ADDRESS_MAX = 247;		// Biggest possible slave address
@@ -358,6 +362,8 @@ type
     property Last: byte read FLast;
   end;
 
+{: Return library version as string. }
+function mbu_Version:string;
 {: Calculate RTU CRC. }
 function mbu_CRC(var ABuf; ALen: word):word;
 {: Convert an error code to the human readable representation. }
@@ -371,6 +377,11 @@ function mbu_GetU16BE(var ABuf):word;
 procedure mbu_PutU16BE(var ABuf; AWord: word);
 
 implementation
+
+function mbu_Version:string;
+begin
+  result := Format('%d.%d%s', [MBU_VERSION_HI, MBU_VERSION_LO, MBU_VERSION_ST]);
+end;
 
 {$region 'crc table'}
 
