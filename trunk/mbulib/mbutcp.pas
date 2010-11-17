@@ -126,6 +126,7 @@ begin
     FSock.CloseSocket;
   end;
   FConnected := true;
+  result := true;
 end;
 
 procedure TMBTCPClient.Disconnect;
