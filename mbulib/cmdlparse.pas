@@ -133,11 +133,12 @@ type
     FArgumentsList	: TStrings;
     FShortOptionPrefix	: char;
     FParseDone		: boolean;
+    FHaveProgramPath	: boolean;
 
     function LookupOption(const AName: string): TCommandLineItem;
     function LookupOptionByShortName(AName: char): TCommandLineItem;
   public
-    constructor Create;
+    constructor Create(AHaveProgramPath: boolean = true);
     destructor Destroy;override;
     procedure Add(AOption: TCommandLineItem);
     function OptionsCount: cardinal;
@@ -341,11 +342,12 @@ end;
 
 { TCommandLineParser }
 
-constructor TCommandLineParser.Create;
+constructor TCommandLineParser.Create(AHaveProgramPath: boolean);
 begin
   FOptionsList := TList.Create;
   FArgumentsList := TStringList.Create;
   FShortOptionPrefix := '-';
+  FHaveProgramPath := AHaveProgramPath;
   FParseDone := false;
 end;
 
@@ -452,9 +454,8 @@ begin
     Options[optidx].FPresent := false;
 
   skipSpaces;
-//  if (cp[0] = '/') or ((cp[0] <> #0) and (cp[1] = ':')) then begin
+  if FHaveProgramPath then
     FFullProgramPath := GetToken(cp, cp);
-//  end;
 
   skipSpaces;
   while cp[0] <> #0 do begin
@@ -508,7 +509,7 @@ begin
   for i := 0 to pred(OptionsCount) do begin
     opt := Options[i];
     if opt.Required and not opt.Present then
-      raise ECommandLineParser.CreateFmt('Option ''%s'' must be present.', [opt.Desc]);
+      raise ECommandLineParser.CreateFmt('%s: Option ''%s'' must be present.', [FProgramName, opt.Desc]);
   end;
 
   while true do begin
