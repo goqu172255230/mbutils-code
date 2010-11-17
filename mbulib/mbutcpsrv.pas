@@ -210,9 +210,7 @@ end;
 
 procedure TMBTCPServer.Execute;
 var
-  rq	: TMBQuery;
   newsock	: TSocket;
-  wdata	: integer;
 begin
   FConnCount := 0;
   FillChar(FConnList, sizeof(FConnList), 0);
