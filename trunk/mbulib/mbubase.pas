@@ -111,10 +111,16 @@ type
     function Getu8(AOffset: word): byte;
     function Getu16be(AOffset: word): word;
     function Getu32be(AOffset: word): longword;
+    function Gets8(AOffset: word): shortint;
+    function Gets16be(AOffset: word): smallint;
+    function Gets32be(AOffset: word): longint;
     function GetFnCode: byte;
-    procedure Setu32be(AOffset: word; const AValue: longword);
     procedure Setu8(AOffset: word; const AValue: byte);
     procedure Setu16be(AOffset: word; const AValue: word);
+    procedure Setu32be(AOffset: word; const AValue: longword);
+    procedure Sets8(AOffset: word; const AValue: shortint);
+    procedure Sets16be(AOffset: word; const AValue: smallint);
+    procedure Sets32be(AOffset: word; const AValue: longint);
     procedure SetFnCode(const AValue: byte);
   protected
     procedure CheckField(AField: cardinal);
@@ -136,6 +142,12 @@ type
     property u32be[AOffset: word]: longword read Getu32be write Setu32be;
     {: Get or set big-endian 16-bit unsigned value started at the given offset. }
     property u16be[AOffset: word]: word read Getu16be write Setu16be;
+    {: Get or set 8-bit signed value started at the given offset. }
+    property s8[AOffset: word]: shortint read Gets8 write Sets8;
+    {: Get or set big-endian 16-bit signed value started at the given offset. }
+    property s16be[AOffset: word]: smallint read Gets16be write Sets16be;
+    {: Get or set big-endian 32-bit signed value started at the given offset. }
+    property s32be[AOffset: word]: longint read Gets32be write Sets32be;
   end;
 
   TMBPDUClass = class of TMBPDU;
@@ -513,13 +525,6 @@ begin
   result := byte(pchar(@ABuf)[0]) shl 8 + byte(pchar(@ABuf)[1]);
 end;
 
-const
-  MB_MAX_RQ_COILS = 1968;
-  MB_MAX_RQ_REGS = 123;
-
-  MB_NO_CNT = $FFFF;
-  MB_NO_DATA = $FFFF;
-
 { TMBPDU }
 
 constructor TMBPDU.Create;
@@ -584,6 +589,47 @@ begin
 end;
 
 procedure TMBPDU.Setu32be(AOffset: word; const AValue: longword);
+begin
+  CheckPDUIndex(AOffset + 3);
+  FPDU[AOffset] := byte(AValue shr 24);
+  FPDU[AOffset + 1] := byte(AValue shr 16);
+  FPDU[AOffset + 2] := byte(AValue shr 8);
+  FPDU[AOffset + 3] := byte(AValue);
+end;
+
+function TMBPDU.Gets8(AOffset: word): shortint;
+begin
+  CheckPDUIndex(AOffset);
+  result := shortint(FPDU[AOffset]);
+end;
+
+procedure TMBPDU.Sets8(AOffset: word; const AValue: shortint);
+begin
+  CheckPDUIndex(AOffset);
+  FPDU[AOffset] := byte(AValue);
+end;
+
+function TMBPDU.Gets16be(AOffset: word): smallint;
+begin
+  CheckPDUIndex(AOffset + 1);
+  result := smallint(FPDU[AOffset] shl 8 + FPDU[AOffset + 1]);
+end;
+
+procedure TMBPDU.Sets16be(AOffset: word; const AValue: smallint);
+begin
+  CheckPDUIndex(AOffset + 1);
+  FPDU[AOffset] := Hi(AValue);
+  FPDU[AOffset + 1] := Lo(AValue);
+end;
+
+function TMBPDU.Gets32be(AOffset: word): longint;
+begin
+  CheckPDUIndex(AOffset + 3);
+  result := longint(FPDU[AOffset] shl 24 + FPDU[AOffset + 1] shl 16 +
+    FPDU[AOffset + 2] shl 8 + FPDU[AOffset + 3]);
+end;
+
+procedure TMBPDU.Sets32be(AOffset: word; const AValue: longint);
 begin
   CheckPDUIndex(AOffset + 3);
   FPDU[AOffset] := byte(AValue shr 24);
