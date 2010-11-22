@@ -101,13 +101,19 @@ type
   private
     function GetByteCount: byte;
     function GetRegCnt: word;
+    function GetRegS32BE(AOffset: word): longword;
+    function GetRegS8(AOffset: word): shortint;
     function GetRegU16BE(AOffset: word): word;
     function GetRegU32BE(AOffset: word): longword;
     function GetRegU8(AOffset: word): byte;
+    function GetRegS16BE(AOffset: word): smallint;
     function GetStartReg: word;
     procedure SetByteCount(const AValue: byte);
     procedure SetReg32BE(AOffset: word; const AValue: longword);
     procedure SetRegCnt(const AValue: word);
+    procedure SetRegS16BE(AOffset: word; const AValue: smallint);
+    procedure SetRegS32BE(AOffset: word; const AValue: longword);
+    procedure SetRegS8(AOffset: word; const AValue: shortint);
     procedure SetRegU16BE(AOffset: word; const AValue: word);
     procedure SetRegU8(AOffset: word; const AValue: byte);
     procedure SetStartReg(const AValue: word);
@@ -134,6 +140,12 @@ type
     property RegU16BE[AOffset: word]: word read GetRegU16BE write SetRegU16BE;
     {: Treat registers zero based array of big-endian 32-bit values. }
     property RegU32BE[AOffset: word]: longword read GetRegU32BE write SetReg32BE;
+    {: Treat registers as zero based array of signed 8-bit values. }
+    property RegS8[AOffset: word]: shortint read GetRegS8 write SetRegS8;
+    {: Treat registers as zero based array of signed big-endian 16-bit values. }
+    property RegS16BE[AOffset: word]: smallint read GetRegS16BE write SetRegS16BE;
+    {: Treat registers zero based array of signed big-endian 32-bit values. }
+    property RegS32BE[AOffset: word]: longword read GetRegS32BE write SetRegS32BE;
   end;
 
   { TMBQCustomReadRegisters }
@@ -349,6 +361,42 @@ procedure TMBCustomRegistersPDU.SetReg32BE(AOffset: word; const AValue: longword
 begin
   CheckField(FDataOfs);
   U32BE[FDataOfs + AOffset * 4] := AValue;
+end;
+
+function TMBCustomRegistersPDU.GetRegS8(AOffset: word): shortint;
+begin
+  CheckField(FDataOfs);
+  result := S8[FDataOfs + AOffset];
+end;
+
+procedure TMBCustomRegistersPDU.SetRegS8(AOffset: word; const AValue: shortint);
+begin
+  CheckField(FDataOfs);
+  S8[FDataOfs + AOffset] := AValue;
+end;
+
+function TMBCustomRegistersPDU.GetRegS16BE(AOffset: word): smallint;
+begin
+  CheckField(FDataOfs);
+  result := S16BE[FDataOfs + AOffset * 2];
+end;
+
+procedure TMBCustomRegistersPDU.SetRegS16BE(AOffset: word; const AValue: smallint);
+begin
+  CheckField(FDataOfs);
+  S16BE[FDataOfs + AOffset * 2] := AValue;
+end;
+
+function TMBCustomRegistersPDU.GetRegS32BE(AOffset: word): longword;
+begin
+  CheckField(FDataOfs);
+  result := S32BE[FDataOfs + AOffset * 4];
+end;
+
+procedure TMBCustomRegistersPDU.SetRegS32BE(AOffset: word; const AValue: longword);
+begin
+  CheckField(FDataOfs);
+  S32BE[FDataOfs + AOffset * 4] := AValue;
 end;
 
 procedure TMBCustomRegistersPDU.SetRegCnt(const AValue: word);

@@ -155,6 +155,15 @@ begin
   end else if dt = 'u32be' then begin
     for i := 0 to pred(q.rq.RegCnt div 2) do
       writeln(Format('[%u]: ' + fmt, [q.rq.StartReg + i * 2, q.rp.RegU32BE[i]]));
+  end else if dt = 's8' then begin
+    for i := 0 to pred(q.rq.RegCnt * 2) do
+      writeln(Format('[%u.%u]: ' + fmt, [q.rq.StartReg + i div 2, i and 1, q.rp.RegS8[i]]));
+  end else if dt = 's16be' then begin
+    for i := 0 to pred(q.rq.RegCnt) do
+      writeln(Format('[%u]: ' + fmt, [q.rq.StartReg + i, q.rp.RegS16BE[i]]));
+  end else if dt = 's32be' then begin
+    for i := 0 to pred(q.rq.RegCnt div 2) do
+      writeln(Format('[%u]: ' + fmt, [q.rq.StartReg + i * 2, q.rp.RegS32BE[i]]));
   end;
 end;
 
@@ -307,7 +316,7 @@ begin
     'Sleep for <int> milleseconds between queries', 1000, 1, 1000000);
 
   FOptDataType := TCommandLineString.Create	(cmdl, 'datatype', 't', 'Treat values as', 'u16be',
-    ['u8', 'u16be', 'u32be']);
+    ['s8', 's16be', 's32be', 'u8', 'u16be', 'u32be']);
   FOptRadix := TCommandLineString.Create	(cmdl, 'datatype', 'x', 'Display values in the given base', '10',
     ['10', '16']);
 
