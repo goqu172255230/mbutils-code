@@ -108,6 +108,7 @@ type
     FPDU	: TMBPDUData;
 
     procedure CheckPDUIndex(AIndex: cardinal);
+    function Getu32le(AOffset: word): longword;
     function Getu8(AOffset: word): byte;
     function Getu16be(AOffset: word): word;
     function Getu32be(AOffset: word): longword;
@@ -115,6 +116,7 @@ type
     function Gets16be(AOffset: word): smallint;
     function Gets32be(AOffset: word): longint;
     function GetFnCode: byte;
+    procedure Setu32le(AOffset: word; AValue: longword);
     procedure Setu8(AOffset: word; const AValue: byte);
     procedure Setu16be(AOffset: word; const AValue: word);
     procedure Setu32be(AOffset: word; const AValue: longword);
@@ -131,6 +133,7 @@ type
     procedure GetPDU(var ADest);
     {: Set an entire PDU content from source. }
     procedure SetPDU(const ASrc; ALen: word);
+    function GetAsciizString(AOffset: word; AMaxLen: integer): string;
 
     {: Function code, the first byte in the PDU. }
     property FnCode: byte read GetFnCode write SetFnCode;
@@ -140,6 +143,8 @@ type
     property u8[AOffset: word]: byte read Getu8 write Setu8;
     {: Get or set big-endian 32-bit unsigned value started at the given offset. }
     property u32be[AOffset: word]: longword read Getu32be write Setu32be;
+    {: Get or set little-endian 32-bit unsigned value started at the given offset. }
+    property u32le[AOffset: word]: longword read Getu32le write Setu32le;
     {: Get or set big-endian 16-bit unsigned value started at the given offset. }
     property u16be[AOffset: word]: word read Getu16be write Setu16be;
     {: Get or set 8-bit signed value started at the given offset. }
@@ -207,9 +212,9 @@ type
     property Error: TMBErrors read FError write FError;
     property StartTime: longword read FStartTime write FStartTime;
     {: Access to the request PDU. }
-    property Rq: TMBPDU read FRq;
+    property rq: TMBPDU read FRq;
     {: Access to the reply PDU. }
-    property Rp: TMBPDU read Frp;
+    property rp: TMBPDU read FRp;
     {: Inidcates client connection. Valid only for servers. }
     property Client: TMBClientConnection read FClient write FClient;
     {: User specific field. Not used by core library. }
@@ -552,6 +557,21 @@ begin
     raise Exception.CreateFmt('Field is inaccessible', [0]);
 end;
 
+function TMBPDU.GetAsciizString(AOffset: word; AMaxLen: integer): string;
+var
+  i, len	: integer;
+begin
+  len := 0;
+  i := 0;
+  while (FPDU[AOffset + len] <> 0) and (len < AMaxLen) do
+    inc(Len);
+  SetLength(result, Len);
+  while len <> 0 do begin
+    result[len] := char(FPDU[AOffset + len]);
+    dec(Len);
+  end;
+end;
+
 function TMBPDU.Getu8(AOffset: word): byte;
 begin
   CheckPDUIndex(AOffset);
@@ -588,6 +608,12 @@ begin
   result := FPDU[AOffset] shl 24 + FPDU[AOffset + 1] shl 16 + FPDU[AOffset + 2] shl 8 + FPDU[AOffset + 3];
 end;
 
+function TMBPDU.Getu32le(AOffset: word): longword;
+begin
+  CheckPDUIndex(AOffset + 3);
+  result := FPDU[AOffset + 3] shl 24 + FPDU[AOffset + 2] shl 16 + FPDU[AOffset + 1] shl 8 + FPDU[AOffset];
+end;
+
 procedure TMBPDU.Setu32be(AOffset: word; const AValue: longword);
 begin
   CheckPDUIndex(AOffset + 3);
@@ -595,6 +621,15 @@ begin
   FPDU[AOffset + 1] := byte(AValue shr 16);
   FPDU[AOffset + 2] := byte(AValue shr 8);
   FPDU[AOffset + 3] := byte(AValue);
+end;
+
+procedure TMBPDU.Setu32le(AOffset: word; AValue: longword);
+begin
+  CheckPDUIndex(AOffset + 3);
+  FPDU[AOffset] := byte(AValue);
+  FPDU[AOffset + 1] := byte(AValue shr 8);
+  FPDU[AOffset + 2] := byte(AValue shr 16);
+  FPDU[AOffset + 3] := byte(AValue shr 24);
 end;
 
 function TMBPDU.Gets8(AOffset: word): shortint;
