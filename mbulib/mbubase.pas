@@ -108,6 +108,7 @@ type
     FPDU	: TMBPDUData;
 
     procedure CheckPDUIndex(AIndex: cardinal);
+    function Getu16le(AOffset: word): word;
     function Getu32le(AOffset: word): longword;
     function Getu8(AOffset: word): byte;
     function Getu16be(AOffset: word): word;
@@ -116,6 +117,7 @@ type
     function Gets16be(AOffset: word): smallint;
     function Gets32be(AOffset: word): longint;
     function GetFnCode: byte;
+    procedure Setu16le(AOffset: word; AValue: word);
     procedure Setu32le(AOffset: word; AValue: longword);
     procedure Setu8(AOffset: word; const AValue: byte);
     procedure Setu16be(AOffset: word; const AValue: word);
@@ -147,6 +149,8 @@ type
     property u32le[AOffset: word]: longword read Getu32le write Setu32le;
     {: Get or set big-endian 16-bit unsigned value started at the given offset. }
     property u16be[AOffset: word]: word read Getu16be write Setu16be;
+    {: Get or set little-endian 16-bit unsigned value started at the given offset. }
+    property u16le[AOffset: word]: word read Getu16le write Setu16le;
     {: Get or set 8-bit signed value started at the given offset. }
     property s8[AOffset: word]: shortint read Gets8 write Sets8;
     {: Get or set big-endian 16-bit signed value started at the given offset. }
@@ -600,6 +604,19 @@ begin
   CheckPDUIndex(AOffset + 1);
   FPDU[AOffset] := Hi(AValue);
   FPDU[AOffset + 1] := Lo(AValue);
+end;
+
+function TMBPDU.Getu16le(AOffset: word): word;
+begin
+  CheckPDUIndex(AOffset + 1);
+  result := FPDU[AOffset] + FPDU[AOffset + 1] shl 8;
+end;
+
+procedure TMBPDU.Setu16le(AOffset: word; AValue: word);
+begin
+  CheckPDUIndex(AOffset + 1);
+  FPDU[AOffset] := Lo(AValue);
+  FPDU[AOffset + 1] := Hi(AValue);
 end;
 
 function TMBPDU.Getu32be(AOffset: word): longword;
