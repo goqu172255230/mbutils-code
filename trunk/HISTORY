@@ -1,0 +1,7 @@
+24.09.2013	Add example of Modbus proxy utility
+
+22.11.2010	Added support for signed big-endian values.
+
+17.11.2010	mbuquery utility of version 1.3 made available
+
+16.11.2010	initial code check-in
